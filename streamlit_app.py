@@ -33,31 +33,51 @@ with c2:
     count = st.slider("عدد المصادر", 5, 15, 9)
 
 def generate_pro_report(q, answer, results):
-    # تقرير برو حتى بدون ذكاء اصطناعي اضافي
     report = f"# 📊 تقرير بحثي عميق: {q}\n\n"
     report += f"## 🎯 الملخص التنفيذي\n{answer}\n\n"
+    
+    # تحليل ذكي للمنصات من المصادر
+    platforms_found = []
+    for r in results:
+        t = (r.get('title','') + " " + r.get('content','')).lower()
+        if 'podu' in t or 'بوديو' in t: platforms_found.append("PodU")
+        if 'spotify' in t or 'سبوتيفاي' in t: platforms_found.append("Spotify")
+        if 'apple' in t or 'أبل' in t: platforms_found.append("Apple Podcasts")
+        if 'anghami' in t or 'أنغامي' in t: platforms_found.append("Anghami")
+        if 'الجزيرة' in t: platforms_found.append("الجزيرة بودكاست")
+        if 'buzzsprout' in t: platforms_found.append("Buzzsprout")
+
+    platforms_found = list(dict.fromkeys(platforms_found))[:5]
+
     report += f"## 🔍 التحليل العميق (من {len(results)} مصدر موثوق)\n"
-    report += "قمنا بتحليل جميع المصادر واستخراج أهم النقاط:\n\n"
-    
     for i, r in enumerate(results, 1):
-        title = r.get('title','بدون عنوان')
-        content = r.get('content','')[:700]
-        report += f"### {i}. {title}\n{content}...\n\n"
-    
+        report += f"### {i}. {r.get('title','بدون عنوان')}\n{r.get('content','')[:650]}...\n\n"
+
     report += "\n## 📈 جدول المقارنة السريع\n"
-    report += "| # | المنصة / المصدر | أهم ميزة | الرابط |\n|---|---|---|---|\n"
+    report += "| # | المنصة | الميزة الأساسية | السعر | الرابط |\n|---|---|---|---|---|\n"
     for i, r in enumerate(results[:8], 1):
-        title = r.get('title','')[:40].replace('|',' ')
-        feat = r.get('content','')[:50].replace('|',' ').replace('\n',' ')
+        title = r.get('title','')[:35].replace('|',' ')
+        content = r.get('content','').lower()
+        price = "مجاني" if "مجاني" in content or "free" in content else "مدفوع"
+        feat = "محتوى عربي" if "عربي" in content else "عالمي"
         url = r.get('url','')
-        report += f"| {i} | {title} | {feat}... | [فتح]({url}) |\n"
+        report += f"| {i} | {title} | {feat} | {price} | [فتح]({url}) |\n"
+
+    report += f"\n## 💡 التوصية النهائية الذكية من Mido AI\n"
+    report += f"سؤالك كان: **{q}**\n\n"
     
-    report += f"\n## 💡 التوصية النهائية من Mido AI\n"
-    report += f"بناء على تحليل {len(results)} مصادر حول موضوع **{q}**:\n"
-    report += "- أفضل 3 اختيارات هي أول 3 مصادر في الجدول\n"
-    report += "- لو انت مبتدئ ابدأ بالمصادر المجانية\n"
-    report += "- لو عايز تربح ركز على المنصات اللي بتدعم الاستضافة والربح\n\n"
-    report += "---\n*تم إنشاء التقرير بواسطة Mido AI Store - البحث العميق*\n"
+    if any(x in q.lower() for x in ["ربح", "فلوس", "monetization", "money"]):
+        report += "💰 **لو هدفك الربح:**\n- ابدأ بـ **Spotify for Podcasters + Buzzsprout** بيدعموا الربح بالإعلانات\n- **PodU** بيدفع للمحتوى الحصري العربي\n\n"
+    elif any(x in q.lower() for x in ["مبتدئ", "ابدأ", "beginner"]):
+        report += "🚀 **لو انت مبتدئ:**\n- ابدأ بـ **PodU** (19 جنيه بس لإلغاء الإعلانات ومساحة صغيرة)\n- تاني اختيار **Spotify** مجاني وسهل\n\n"
+    else:
+        report += f"بناء على المنصات اللي لقيناها: **{', '.join(platforms_found) if platforms_found else 'Spotify, PodU, Apple'}**\n\n"
+        report += "✅ **لو عايز جمهور عربي كبير:** PodU + أنغامي + الجزيرة بودكاست\n"
+        report += "✅ **لو عايز جمهور عالمي:** Spotify + Apple Podcasts + Buzzsprout\n"
+        report += "✅ **لو عايز أقل استهلاك داتا:** PodU (أحدث خوارزميات حفظ الصوت)\n"
+        report += "✅ **لو عايز تتعلم:** أبجورة (50 مليون استماع) + دروس أونلاين\n\n"
+
+    report += "---\n*تم إنشاء التقرير بواسطة Mido AI Store - البحث العميق | 299 جنيه*\n"
     return report
 
 if st.button("🚀 ابدأ البحث العميق", type="primary", use_container_width=True):
